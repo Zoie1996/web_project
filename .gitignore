@@ -6,6 +6,5 @@ venv
 *.egg
 *.egg-info
 dist
-build
-# My configurations:
+build:
 db.inia
