@@ -48,34 +48,42 @@
 
 #### 1. 创建用户
 
-	# 先使用数据库
-	use mysql;
-	
-	# 针对ip
-	create user 'root'@'192.168.10.10' identified by 'password';
-	
-	#全部
-	 create user 'root'@'%' identified by 'password';
+```python
+# 先使用数据库
+use mysql;
+
+# 针对ip
+create user 'root'@'192.168.10.10' identified by 'password';
+
+#全部
+ create user 'root'@'%' identified by 'password';
+```
 
 #### 2. 授权
 
-	# 给用户最大权限
-	grant all privileges on *.* to 'root'@'%' identified by 'password';
-	
-	# 给部分权限(test 数据库)
-	
-	grant all privileges on test.* to 'root'@'%' identified by 'password' with grant option;
-	
-	# 刷新权限表
+```python
+# 给用户最大权限
+grant all privileges on *.* to 'root'@'%' identified by 'password';
+
+# 给部分权限(test 数据库)
+
+grant all privileges on test.* to 'root'@'%' identified by 'password' with grant option;
+
+# 刷新权限表
+```
  	flush privileges;
 
-	# 查看
-	show grants for 'root'@'localhost';
+```python
+# 查看
+show grants for 'root'@'localhost';
+```
 
 接下来就可以在远程的数据库可视化工具中直接访问该服务器中的mysql了。
 
-	# 访问数据库
-	mysql -u root -p
+```python
+# 访问数据库
+mysql -u root -p
+```
 
 ### 安装python3.6
 
@@ -86,54 +94,66 @@
 
 首先安装依赖包
 
-	yum -y groupinstall "Development tools"
-	
-	yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
+```python
+yum -y groupinstall "Development tools"
+
+yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
+```
 
 然后根据自己需求下载不同版本的Python3，我下载的是Python3.6.2
 
-	wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz
-	
-	然后解压压缩包，进入该目录，安装Python3
-	
-	tar -xvJf  Python-3.6.2.tar.xz
-	cd Python-3.6.2
-	./configure --prefix=/usr/local/python3
-	make && make install
+```python
+wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz
+
+然后解压压缩包，进入该目录，安装Python3
+
+tar -xvJf  Python-3.6.2.tar.xz
+cd Python-3.6.2
+./configure --prefix=/usr/local/python3
+make && make install
+```
 
 最后创建软链接
 
-	ln -s /usr/local/python3/bin/python3 /usr/bin/python3
-	
-	ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
+```python
+ln -s /usr/local/python3/bin/python3 /usr/bin/python3
+
+ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
+```
 
 
 ### 安装环境
 
 #### 1. 安装virtualenv
 
-	yum install python-virtualenv
+```python
+yum install python-virtualenv
+```
 
 #### 2. 创建虚拟环境
 
-	virtualenv --no-site-packages env
-	
-	cd env
-	
-	# 激活虚拟环境
-	source bin/activate
+```python
+virtualenv --no-site-packages env
+
+cd env
+
+# 激活虚拟环境
+source bin/activate
+```
 
 #### 3. 安装环境需要的包
 
-	pip3 install -r re_install.txt
-	
-	其中re_install.txt文件中记录的是需要安装包的名称以及对应的版本
+```python
+pip3 install -r re_install.txt
+
+其中re_install.txt文件中记录的是需要安装包的名称以及对应的版本
+```
 
 ### 部署
 
 该部署采用的是cenots7系统来部署
 
-Django的项目中，在工程目录下settings.py文件中有一个DEBUG=True参数，如果DEBUG=False则会出现js,css，img无法加载的情况出现。
+Django的项目中，在工程目录下settings.py文件中有一个DEBUG=True参数，如果DEBUG=False则会出现js，css，img无法加载的情况出现。
 
 原因如下：
 
@@ -143,21 +163,23 @@ Django框架仅在开发模式下提供静态文件服务。当我开启DEBUG模
 
 在测试环境中一般都直接使用python manage.py runserver的方式去运行项目。其中就涉及到DEBUG=False的修改，静态目录的修改等，具体修改如下：
 
-	修改settings.py配置文件中的DEBUG=False模式，修改ALLOEWD_HOST=['*']
-	
-	修改工程目录下的urls.py
-	
-	from django.views.static import serve
-	
-	urlpatterns = [
-	    url(r'^admin/', admin.site.urls),
-	    url(r'^axf/', include('axf.urls', namespace='axf')),
-	
-		# 增加以下的url路由
-	    url(r'^static/(?P<path>.*)$', serve, {"document_root": settings.STATICFILES_DIRS[0]}),
-	
-	    url(r'^$', views.home)
-	]
+```python
+# 修改settings.py配置文件中的DEBUG=False模式，修改ALLOEWD_HOST=['*']
+
+# 修改工程目录下的urls.py
+
+from django.views.static import serve
+
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^axf/', include('axf.urls', namespace='axf')),
+
+	# 增加以下的url路由
+    url(r'^static/(?P<path>.*)$', serve, {"document_root": settings.STATICFILES_DIRS[0]}),
+
+    url(r'^$', views.home)
+]
+```
 
 
 #### 2. 正式环境中部署方式
@@ -167,48 +189,60 @@ Django框架仅在开发模式下提供静态文件服务。当我开启DEBUG模
 ##### 2.1 安装nginx
 
 a）添加nginx存储库
-	
-	yum install epel-release
+```python
+yum install epel-release
+```
 
 
 b) 安装nginx
 
-	yum install nginx
+```python
+yum install nginx
+```
 
 c) 运行nginx
 
 Nginx不会自行启动。要运行Nginx
-	
-	systemctl start nginx
+```python
+systemctl start nginx
+```
 
 nginx的运行命令：
 
-	 systemctl status nginx 查看nginx的状态
-	 systemctl start/stop/enable/disable nginx 启动/关闭/设置开机启动/禁止开机启动
+```python
+ systemctl status nginx # 查看nginx的状态
+ systemctl start/stop/enable/disable nginx # 启动/关闭/设置开机启动/禁止开机启动
+```
 
 
 d）系统启动时启用Nginx
-	
-	systemctl enable nginx
+```python
+systemctl enable nginx
+```
 
 e）如果您正在运行防火墙，请运行以下命令以允许HTTP和HTTPS通信：
-	
-	sudo firewall-cmd --permanent --zone=public --add-service=http 
-	
-	sudo firewall-cmd --permanent --zone=public --add-service=https
-	
-	sudo firewall-cmd --reload
+```python
+sudo firewall-cmd --permanent --zone=public --add-service=http 
+
+sudo firewall-cmd --permanent --zone=public --add-service=https
+
+sudo firewall-cmd --reload
+```
 
 
 #### 3.配置uwsgi
 
 ##### 3.1 安装uwsgi
 
-	pip3 install uwsgi
+```python
+pip3 install uwsgi
+```
 
 然后进行环境变量的配置， 建立软连接
 
-	ln -s /usr/local/python3/bin/uwsgi /usr/bin/uwsgi
+```python
+ln -s /usr/local/python3/bin/uwsgi /usr/bin/uwsgi
+```
 
 
 #### 4. 配置项目代码，配置项目nginx，配置uwsgi.ini等
@@ -231,40 +265,44 @@ src是项目文件，该目录下上传的是目录代码
 
 每一个项目对应有一个自己定义的nginx的配置文件，比如爱鲜蜂项目，我定义为axfnginx.conf文件
 
-	server {
-	     listen       80;
-	     server_name 39.104.176.9 localhost;
-	
-	     access_log /home/logs/access.log;
-	     error_log /home/logs/error.log;
-	
-	     location / {
-	         include uwsgi_params;
-	         uwsgi_pass 127.0.0.1:8890;
-	     }
-	     location /static/ {
-	         alias /home/src/axf/static/;
-	         expires 30d;
-	     }
-	
-	 }
+```python
+server {
+     listen       80;
+     server_name 39.104.176.9 localhost;
+
+     access_log /home/logs/access.log;
+     error_log /home/logs/error.log;
+
+     location / {
+         include uwsgi_params;
+         uwsgi_pass 127.0.0.1:8890; # 端口号与uwsgi端口号要一致
+     }
+     location /static/ {
+         alias /home/src/axf/static/;
+         expires 30d;
+     }
+
+ }
+```
 
 <b>其次</b>：修改总的nginx的配置文件，让总的nginx文件包含我们自定义的项目的axfnginx.conf文件
 
 总的nginx配置文件在：/etc/nginx/nginx.conf中
 
-```
+```python
 在37行添加 : include /home/conf/*.conf
 ```
 
 
 以上步骤操作完成以后，需要重启nginx：
 
-	systemctl restart nginx
+```python
+systemctl restart nginx
+```
 
 如果自定义的axfnginx.conf文件没有错误的话，查看nginx的运行状态会有如下的结果：
 
-```
+```python
 ● nginx.service - The nginx HTTP and reverse proxy server
    Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
   Drop-In: /etc/systemd/system/nginx.service.d
@@ -287,36 +325,40 @@ src是项目文件，该目录下上传的是目录代码
 
 在conf文件夹下除了包含自定义的axfnginx.conf文件，还有我们定义的uwsgi.ini文件
 
-	[uwsgi]
-	projectname = axf
-	base = /home/src
-	
-	# 守护进程
-	master = true
-	
-	# 进程个数
-	processes = 4
-	
-	# 虚拟环境
-	pythonhome = /home/env/axfenv
-	
-	# 项目地址
-	chdir = %(base)/%(projectname)
-	
-	# 指定python版本
-	pythonpath = /usr/local/python3/bin/python3
-	
-	# 指定uwsgi文件
-	module = %(projectname).wsgi
-	
-	# 和nginx通信地址:端口
-	socket = 127.0.0.1:8890
-	
-	# 日志文件地址
-	logto = /home/logs/uwsgi.log
+```python
+[uwsgi]
+projectname = axf
+base = /home/src
+
+# 守护进程
+master = true
+
+# 进程个数
+processes = 4
+
+# 虚拟环境
+pythonhome = /home/env/axfenv
+
+# 项目地址
+chdir = %(base)/%(projectname)
+
+# 指定python版本
+pythonpath = /home/env/axfenv/bin/python3
+
+# 指定uwsgi文件
+module = %(projectname).wsgi
+
+# 和nginx通信地址:端口
+socket = 127.0.0.1:8890
+
+# 日志文件地址
+logto = /home/logs/uwsgi.log
+```
 
 
 ​	
-运行项目:
+后台运行项目:
 
-	uwsgi --ini uwsgi.ini
+```python
+uwsgi --ini uwsgi.ini &
+```

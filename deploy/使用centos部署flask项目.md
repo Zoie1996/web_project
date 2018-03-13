@@ -1,0 +1,325 @@
+# 使用centos部署flask项目
+
+
+### 安装MariaDB
+
+安装命令
+
+	yum -y install mariadb mariadb-server
+
+安装完成MariaDB，首先启动MariaDB
+
+	systemctl start mariadb
+
+设置开机启动
+
+	systemctl enable mariadb
+
+### 设置密码
+
+命令: mysql\_secure\_installation
+
+```python
+Enter current password for root:<–初次运行直接回车
+
+设置密码
+
+Set root password? [Y/n] <– 是否设置root用户密码，输入y并回车或直接回车
+
+New password: <– 设置root用户的密码
+Re-enter new password: <– 再输入一次你设置的密码
+
+其他配置
+
+Remove anonymous users? [Y/n] <– 是否删除匿名用户，回车
+
+Disallow root login remotely? [Y/n] <–是否禁止root远程登录,回车,
+
+Remove test database and access to it? [Y/n] <– 是否删除test数据库，回车
+
+Reload privilege tables now? [Y/n] <– 是否重新加载权限表，回车
+
+初始化MariaDB完成，接下来测试登录
+
+mysql -u root -p password
+```
+
+### 开启远程连接
+
+在mysql数据库中的user表中可以看到默认是只能本地连接的，所有可以添加一个新的用户，该用户可以远程访问
+
+#### 1. 创建用户
+
+```python
+# 先使用数据库
+use mysql;
+
+# 针对ip
+create user 'root'@'192.168.10.10' identified by 'password';
+
+#全部
+ create user 'root'@'%' identified by 'password';
+```
+
+#### 2. 授权
+
+```python
+# 给用户最大权限
+grant all privileges on *.* to 'root'@'%' identified by 'password';
+
+# 给部分权限(test 数据库)
+
+grant all privileges on test.* to 'root'@'%' identified by 'password' with grant option;
+
+# 刷新权限表
+```
+ 	flush privileges;
+
+```python
+# 查看
+show grants for 'root'@'localhost';
+```
+
+接下来就可以在远程的数据库可视化工具中直接访问该服务器中的mysql了。
+
+```python
+# 访问数据库
+mysql -u root -p
+```
+
+### 安装python3.6
+
+在centos中，系统默认只提供python2.7的版本，但是项目我们使用的python3.6的版本。所有我们自己安装python3
+
+
+#### 安装Python3的方法
+
+首先安装依赖包
+
+```python
+yum -y groupinstall "Development tools"
+
+yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
+```
+
+然后根据自己需求下载不同版本的Python3，我下载的是Python3.6.2
+
+```python
+wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz
+
+然后解压压缩包，进入该目录，安装Python3
+
+tar -xvJf  Python-3.6.2.tar.xz
+cd Python-3.6.2
+./configure --prefix=/usr/local/python3
+make && make install
+```
+
+最后创建软链接
+
+```python
+ln -s /usr/local/python3/bin/python3 /usr/bin/python3
+
+ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
+```
+
+
+### 安装环境
+
+#### 1. 安装virtualenv
+
+```python
+yum install python-virtualenv
+```
+
+#### 2. 创建虚拟环境
+
+```python
+virtualenv --no-site-packages env
+
+cd env
+
+# 激活虚拟环境
+source bin/activate
+```
+
+#### 3. 安装环境需要的包
+
+```python
+pip3 install -r re_install.txt
+
+其中re_install.txt文件中记录的是需要安装包的名称以及对应的版本
+```
+
+### 部署
+
+更改静态文件配置目录
+
+```python
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+```
+
+#### 1.安装nginx
+
+a）添加nginx存储库
+```python
+yum install epel-release
+```
+
+
+b) 安装nginx
+
+```python
+yum install nginx
+```
+
+c) 运行nginx
+
+Nginx不会自行启动。要运行Nginx
+```python
+systemctl start nginx
+```
+
+nginx的运行命令：
+
+```python
+ systemctl status nginx # 查看nginx的状态
+ systemctl start/stop/enable/disable nginx # 启动/关闭/设置开机启动/禁止开机启动
+```
+
+
+d）系统启动时启用Nginx
+```python
+systemctl enable nginx
+```
+
+e）如果您正在运行防火墙，请运行以下命令以允许HTTP和HTTPS通信：
+```python
+sudo firewall-cmd --permanent --zone=public --add-service=http 
+
+sudo firewall-cmd --permanent --zone=public --add-service=https
+
+sudo firewall-cmd --reload
+```
+
+
+#### 2.配置uwsgi
+
+##### 2.1 安装uwsgi
+
+```python
+pip3 install uwsgi
+```
+
+然后进行环境变量的配置， 建立软连接
+
+```python
+ln -s /usr/local/python3/bin/uwsgi /usr/bin/uwsgi
+```
+
+
+#### 3. 配置项目代码，配置项目nginx，配置uwsgi.ini等
+
+本案例的配置文件，都习惯将每一个项目的配置文件，日志文件，虚拟环境放在一起，这样开发方便，运维也方便维护
+
+项目的目录结构如下：
+
+conf是配置文件，用于存放项目的nginx.conf文件，uwsgi.ini文件
+
+logs是日志文件，用于存放nginx的启动成功和失败文件，以及uwsgi的运行日志文件
+
+env是用于存放虚拟环境
+
+src是项目文件，该目录下上传的是目录代码
+
+#### 3.1 配置nginx.conf文件
+
+<b>首先</b>：编写自己项目的nginx.conf文件如下：
+
+每一个项目对应有一个自己定义的nginx的配置文件，比如爱鲜蜂项目，我定义为nginx.conf文件
+
+```python
+ server {
+      listen       443; # https默认端口
+      server_name 119.27.166.245 localhost;
+
+      access_log /home/ihomeapp/logs/access.log;
+      error_log /home/ihomeapp/logs/error.log;
+
+      location / {
+          include uwsgi_params;
+          uwsgi_pass 127.0.0.1:5555; # 端口号与uwsgi端口号要一致
+
+     uwsgi_param UWSGI_CHDIR /home/ihomeapp/src/iHome;
+     uwsgi_param UWSGI_SCRIPT manage:run;
+     }
+  }
+```
+
+<b>其次</b>：修改总的nginx的配置文件，让总的nginx文件包含我们自定义的项目的axfnginx.conf文件
+
+总的nginx配置文件在：/etc/nginx/nginx.conf中
+
+```python
+在37行添加 : include /home/conf/*.conf
+```
+
+
+以上步骤操作完成以后，需要重启nginx：
+
+```python
+systemctl restart nginx
+```
+
+如果自定义的nginx.conf文件没有错误的话，查看nginx的运行状态会有如下的结果：
+
+```python
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/nginx.service.d
+           └─override.conf
+   Active: active (rsunning) since Fri 2018-06-08 16:30:08 CST; 2h 46min ago
+  Process: 7961 ExecStartPost=/bin/sleep 0.1 (code=exited, status=0/SUCCESS)
+  Process: 7957 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 7955 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 7954 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 7960 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─7960 nginx: master process /usr/sbin/nginx
+           └─7962 nginx: worker process
+```
+
+
+
+
+#### 3.2 配置uwsgi文件
+
+在conf文件夹下除了包含自定义的nginx.conf文件，还有我们定义的uwsgi.ini文件
+
+```python
+[uwsgi]
+# uwsgi 启动时所使用的地址与端口
+socket = 127.0.0.1:5555
+# 守护进程
+master = true
+# 指向网站目录
+chdir = /home/ihomeapp/src/iHome
+# 虚拟环境
+pythonhome = /home/ihomeapp/env/ajvenv
+# 使用虚拟环境Python版本
+pythonpath = /home/ihomeapp/env/ajvenv/bin/python3
+# python 启动程序文件
+wsgi-file = manage.py
+# python 程序内用以启动的 application 变量名
+callable = app
+# 日志文件地址
+logto = /home/ihomeapp/logs/uwsgi.log
+```
+
+
+​	
+后台运行项目:
+
+```python
+uwsgi --ini uwsgi.ini &
+```
