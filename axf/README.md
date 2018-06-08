@@ -95,7 +95,7 @@
 
 	a) 令牌验证，创建单独的表，存令牌和过期时间
 	b) cookie中设置缓存时间
-
+	
 	c) 也可以使用django自带的登录 authenticate login logout
 
 
@@ -110,7 +110,7 @@
 
 	a）先验证request中是否有user的信息，如果有则在个人中心页面中渲染用户名，头像图片等信息
 		a1）待付款和待收货的数据刷新，通过user找到order订单表，查看订单表的订单状态
-
+	
 	c）没有验证到request中的user信息的话，则在个人中心页面中，展示登录以及注册的按钮的信息
 
 
@@ -180,7 +180,7 @@ e）下单订单生成
 2）个人中心页面
 
 	b）个人中心的待支付页面，待收货页面
-
+	
 	c）个人中心的待收货刷新，代付款订单个数刷新
 
 部分功能展示： 支付页面，待收货/代付款页面
@@ -192,11 +192,7 @@ e）下单订单生成
 
 ### day05:
 
-复习1：
-
-	a）复习所有代码
-
-部署2: 测试环境部署方式和线上环境nginx+uwsgi部署方式：
+部署: 测试环境部署方式和线上环境nginx+uwsgi部署方式：
 
 部署的服务器采用的是ubuntu16系统
 
@@ -216,37 +212,36 @@ e）下单订单生成
 		b）注释mysql.cof文件的bind_address
 			cd /etc/mysql/mysql.conf.d
 			vim mysqld.cnf
-	
+		
 		c）切换mysql数据库
 		   use mysql;
-	
-	       GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root123' WITH GRANT OPTION;
-	
+		
+		   GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root123' WITH GRANT OPTION;
+		
 		   flush privileges; 
-
+	
 		d) 重启
 		   service mysql restart /status/ stop/ start
 
 #### 在测试环境中部署方式：
-	
+
 1. 修改django的配置文件
 
-		a）修改settings.py文件中的DEBUG=FALSE，ALLOWED_HOST=['*']
+   a）修改settings.py文件中的DEBUG=FALSE，ALLOWED_HOST=['*']
 
-		b）修改urls.py
-	
-			b1）url中加入以下配置
-			from django.views.static import serve
-			url(r'^static/(?P<path>.*)$', serve, {"document_root": settings.STATIC_ROOT}),
-			url(r'^media/(?P<path>.*)$', serve, {"document_root": settings.MEDIA_ROOT}),
+   	b）修改urls.py
+   	
+   		b1）url中加入以下配置
+   		from django.views.static import serve
+   		url(r'^static/(?P<path>.*)$', serve, {"document_root": settings.STATIC_ROOT}),
+   		url(r'^media/(?P<path>.*)$', serve, {"document_root": settings.MEDIA_ROOT}),
+   	
+   		b2）setting中
+   		STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+   	
+   		b3）url中修改首页访问的地址
+   		url(r'^$', views.home)
 
-			b2）setting中
-			STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-			b3）url中修改首页访问的地址
-			url(r'^$', views.home)
-	
-	
 2. 修改首页的启动地址
 
 		修改工程目录中的url ，并修改url(r'^$', views.home)
@@ -282,7 +277,7 @@ e）下单订单生成
 		systemctl start/stop/enable/disable nginx 启动/关闭/设置开机启动/禁止开机启动
 		
 		或者是如下命令：
-
+	
 		service nginx status/stop/restart/start
 
 
@@ -305,7 +300,7 @@ e）下单订单生成
 	
 		    access_log /home/app/log/access.log;
 		    error_log /home/app/log/error.log;
-	
+		
 		    location / {
 		        include uwsgi_params;
 		        uwsgi_pass 127.0.0.1:8890;
@@ -314,7 +309,7 @@ e）下单订单生成
 		        alias /home/app/day11axf0/static/;
 		        expires 30d;
 		    }
-	
+		
 		}
 
 
