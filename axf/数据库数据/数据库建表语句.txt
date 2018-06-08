@@ -1,0 +1,152 @@
+-- 轮播banner
+drop table if exists axf_wheel;
+create table axf_wheel(
+id int auto_increment primary key,
+img varchar(200) not null,
+`name` varchar(100) not null, 
+trackid varchar(16) not null
+);
+-- 导航
+drop table if exists axf_nav;
+create table axf_nav(
+id int auto_increment primary key,
+img varchar(200) not null,
+`name` varchar(100) not null, 
+trackid varchar(16) not null
+);
+-- 比购
+drop table if exists axf_mustbuy;
+create table axf_mustbuy(
+id int auto_increment primary key,
+img varchar(200) not null,
+`name` varchar(100) not null,
+trackid varchar(16) not null
+);
+-- 商店
+drop table if exists axf_shop;
+create table axf_shop(
+id int auto_increment primary key,
+img varchar(200) not null,
+`name` varchar(100) not null,
+trackid varchar(16) not null
+);
+
+drop table if exists axf_mainshow;
+create table axf_mainshow(
+id int auto_increment primary key,
+img varchar(200) not null,
+`name` varchar(100) not null,
+trackid varchar(16) not null,
+categoryid varchar(16) not null,
+brandname varchar(100)  not null,
+img1 varchar(200),
+childcid1 varchar(16) not null,
+productid1 varchar(16) not null,
+longname1 varchar(100)  not null,
+price1 float default 0 not null,
+marketprice1 float default 1 not null,
+img2 varchar(200),
+childcid2 varchar(16) not null,
+productid2 varchar(16) not null,
+longname2 varchar(100) not null,
+price2 float default 0 not null,
+marketprice2 float default 1 not null,
+img3 varchar(200),
+childcid3 varchar(16) not null,
+productid3 varchar(16) not null,
+longname3 varchar(100) not null,
+price3 float default 0 not null,
+marketprice3 float default 1 not null
+);
+
+-- 闪购--左侧类型表
+drop table if exists axf_foodtypes;
+create table axf_foodtypes(
+id int auto_increment primary key,
+typeid varchar(16) not null,
+typename varchar(100) not null,
+childtypenames varchar(200) not null,
+typesort int default 1 not null
+);
+
+drop table if exists axf_goods;
+create table axf_goods(
+id int auto_increment primary key,
+productid varchar(16) not null,
+productimg varchar(200) not null,
+productname varchar(100) not null,
+productlongname varchar(200) not null,
+isxf int default 1 not null,
+pmdesc varchar(100) not null,
+specifics varchar(100) not null,
+price float default 1 not null,
+marketprice float default 1 not null,
+categoryid varchar(16) not null,
+childcid varchar(16) not null,
+childcidname varchar(100) not null,
+dealerid varchar(16) not null,
+storenums int default 1 not null,
+productnum int default 1 not null
+);
+
+drop table if exists axf_users;
+create table axf_users(
+id int auto_increment primary key,
+username varchar(32)  not null unique,
+password varchar(255) not null,
+email varchar(64) not null unique,
+sex bit default 0 not null,
+icon varchar(256) not null,
+is_delete bit default 0 not null
+);
+-- 购物车
+drop table if exists axf_cart;
+create table axf_cart(
+id int auto_increment primary key,
+user_id int,
+goods_id int,
+c_num int default 1 not null,
+is_select bit default 1 not null,
+constraint fk_cart_userid foreign key(user_id) references axf_users(id),
+constraint fk_cart_goodsid foreign key(goods_id) references axf_goods(id)
+);
+
+
+
+
+
+drop table if exists axf_order;
+create table axf_order(
+id int auto_increment primary key,
+user_id int,
+o_num varchar(64) not null,
+o_status int default 0 not null,
+o_create datetime(6) not null,
+constraint fk_order_userid foreign key(user_id) references axf_users(id)
+);
+
+drop table if exists axf_order_goods;
+create table axf_order_goods(
+id int auto_increment primary key,
+goods_id int,
+order_id int,
+goods_num int default 1 not null,
+constraint fk_order_goods_goodsid foreign key(goods_id) references axf_goods(id),
+constraint fk_order_goods_orderid foreign key(order_id) references axf_order(id)
+);
+
+
+drop table if exists axf_users_ticket;
+create table axf_users_ticket(
+user_id int,
+ticket varchar(256) not null,
+out_time datetime(6) not null,
+constraint fk_users_ticket_userid foreign key(user_id) references axf_users(id)
+);
+
+
+
+
+
+
+

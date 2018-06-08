@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extCSS %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'app/order/order.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <h3>待收货订单列表</h3>
+
+    <ul>
+        <li class="menuList"></li>
+        <!--订单展示-->
+        {% for order in orders %}
+            {% for ordergoods in order.ordergoodsmodel_set.all %}
+                <li class="menuList">
+
+                    <a href="#">
+                        <img src="{{ ordergoods.goods.productimg }}" alt="">
+                        <!--展示商品的名称-->
+                        <p>{{ ordergoods.goods.productlongname }}</p>
+                        <span><!-- 数量 -->{{ ordergoods.goods_num }}</span>
+                    </a>
+                    <section>
+                        <span id="num_{{ cart.goods.id }}">{{ cart.c_num }}</span>
+                    </section>
+                </li>
+            {% endfor %}
+            <!--处理结束-->
+        {% endfor %}
+        <!--订单处理结束-->
+
+    </ul>
+
+
+{% endblock %}
