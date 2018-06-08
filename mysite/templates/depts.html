@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load staticfiles %}
+    <title>部门</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+</head>
+<body>
+<h1 class="text-center">部门信息</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="span8">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>部门名称</th>
+                        <th>部门所在地</th>
+                        <th>优秀部门</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="dept">
+                {% for dept in dept_list %}
+                    <tr>
+                        <td>{{ dept.no }}</td>
+                        <td>
+                            <a href="{% url 'emps' dept.no %}" target="_blank">
+                                {{ dept.name }}
+                            </a>
+                        </td>
+                        <td>{{ dept.location }}</td>
+                        <td style="font-size: 20px; color: red">
+                        {%  if dept.excellent %}
+                        *
+                            {% else %}
+                            -
+                        {% endif %}
+                        </td>
+                        <td><a href="{% url 'delete_dept' dept.no %}">
+                            <button type="button" class="btn btn-warning">删除</button></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="span4"></div>
+    </div>
+</div>
+
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script>
+    $(function () {
+        $('#dept tr:even').addClass('info');
+        $('#dept tr:odd').addClass('warning');
+    })
+
+</script>
+</body>
+</html>
+

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load staticfiles %}
+    <meta charset="utf-8">
+    <style>
+        th, td {
+            margin: 0;
+            padding: 0;
+            width: 180px;
+            text-align: left;
+        }
+
+        .name {
+            font-size: 14px;
+            font-weight: bolder;
+            width: 280px;
+        }
+
+        .price {
+            color: red;
+            font-size: 18px;
+        }
+
+        a {
+            display: inline-block;
+            text-align: center;
+            background-color: red;
+        }
+
+        .back {
+            width: 120px;
+            height: 30px;
+            line-height: 30px;
+        }
+
+        .del {
+            width: 60px;
+            height: 20px;
+            line-height: 20px;
+        }
+
+        a:link, a:visited {
+            color: white;
+            text-decoration: none;
+        }
+
+        .left {
+            float: left;
+            width: 1000px;
+        }
+
+        .right {
+            float: right;
+        }
+
+        .total {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<div class="left">
+    <h1>购物车列表</h1>
+    <hr>
+</div>
+<div class="right">
+    <a href="/" class="back">返回</a>
+</div>
+{% if cart.cart_items %}
+    <table style="clear: both;" class="foo">
+        <tr>
+            <th>商品名称</th>
+            <th>商品单价</th>
+            <th>商品数量</th>
+            <th>商品总价</th>
+            <th>操作</th>
+        </tr>
+        {% for item in cart.cart_items %}
+            <tr>
+                <td class="name">{{ item.goods.name }}</td>
+                <td class="price">&yen;{{ item.goods.price }}</td>
+                <td>{{ item.amount }}</td>
+                <td class="price">&yen;{{ item.total }}</td>
+                <td>
+                    {#<a href="/delete_to_cart/{{ item.goods.id }}" class="del">删除</a> #}
+                    <a href="javascript:void(0);" gid="{{ item.goods.id }}" class="del">删除</a>
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="5" class="total price" id="total">总计: &yen;{{ cart.total }}元</td>
+        </tr>
+    </table>
+{#    <a href="/clear_cart" class="back" id="del">清空购物车</a>#}
+    <a href="javascript:void(0);" class="back" id="del">清空购物车</a>
+{% else %}
+    <h3 style="clear: both;">购物车中暂时没有商品!</h3>
+{% endif %}
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script>
+    $(function () {
+        // 使用ajax 删除购物车
+        $('.del').on('click', function (evt) {
+            var a = $(evt.target);
+            if (confirm('你确定要删除吗? ')) {
+                $.getJSON('/delete_to_cart/' + a.attr('gid'), function (json) {
+                    if (json.code == 200) {
+                        $('#total').text('总计: ' + json.total + '元');
+                        a.parent().parent().remove();
+                    }
+                });
+            }
+        });
+        // 使用ajax 清空购物车
+        $('#del').on('click', function (evt) {
+            if (confirm('你确定要清空吗?')) {
+                $.getJSON('/clear_cart/', function (json) {
+                    if (json.code == 200) {
+                        $('.foo').remove();
+                        $(evt.target).remove()
+                    }
+                });
+            }
+
+        });
+    });
+
+
+</script>
+</body>
+</html>

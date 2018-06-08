@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load staticfiles %}
+    <title>员工</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span8">
+			<h3 class="text-center">
+				员工信息表
+			</h3>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>编号</th>
+						<th>姓名</th>
+						<th>职位</th>
+						<th>主管编号</th>
+						<th>工资</th>
+						<th>奖金</th>
+						<th>所在部门</th>
+					</tr>
+				</thead>
+				<tbody id="dept">
+                {% if emp_list %}
+                    {% for emp in emp_list %}
+                    <tr>
+                        <td>{{ emp.no }}</td>
+                        <td>{{ emp.name }}</td>
+                        <td>{{ emp.job }}</td>
+                        <td>{{ emp.mgr }}</td>
+                        <td>{{ emp.sal }}</td>
+                        <td>{{ emp.comm }}</td>
+                        <td>{{ emp.dept }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7">此部门暂时没有员工</td>
+                    </tr>
+                {% endif %}
+				</tbody>
+			</table>
+		</div>
+		<div class="span4">
+		</div>
+	</div>
+</div>
+
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script>
+    $(function () {
+        $('#dept tr:even').addClass('info');
+        $('#dept tr:odd').addClass('warning');
+    })
+
+</script>
+</body>
+</html>
