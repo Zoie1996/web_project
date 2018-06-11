@@ -1,13 +1,5 @@
 # 使用centos部署django项目
 
->Auth: 王海飞
->
->Data：2018-06-07
->
->Email：779598160@qq.com
->
->github：https://github.com/coco369/knowledge
-
 
 ### 安装MariaDB
 
