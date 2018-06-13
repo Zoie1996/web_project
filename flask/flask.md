@@ -44,11 +44,11 @@ def set_cookie():
     return response
 ```
 
-- Session
+- **Session**
 
 flask-session是flask框架的session组件
 
-安装: 
+**安装: **
 
 ```
 pip install flask-session
@@ -60,7 +60,7 @@ pip install flask-session
 pip install redis
 ```
 
-utlis/functions.py
+**配置session**  utlis/functions.py
 
 ```python
 def create_app():
@@ -275,10 +275,20 @@ class Student(db.Model):
     s_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     s_name = db.Column(db.String(10), unique=True)
     s_age = db.Column(db.Integer, default=18)
-    # s_yuwen = db.Column(db.Float)
-
+    grade_id = db.Column(db.Integer, db.ForeignKey('grade.g_id'), nullable=True)
     # 设置数据库名称
     __tablename__ = 'tb_student'
+    
+class Grade(db.Model):
+    g_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    g_name = db.Column(db.String(10), unique=True)
+    g_desc = db.Column(db.String(100), nullable=True)
+    g_time = db.Column(db.Date, default=datetime.now)
+    # 外键 ForeignKey('多_表名.字段')
+    # backref 多表反查时的名称
+    students = db.relationship('Student', backref='grade', lazy=True)
+
+    __tablename__ = 'grade'
 ```
 
 初始化SQLALchemy  utils/functions.py
@@ -291,7 +301,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:root@localhost:330
 app.config['SQLALCHEMY_TRAKE_MODIFICATIONS'] = False
 # 第一种
 db = SQLAlchemy(app)
-#第二种
+# 第二种
 db.init_app(app=app)
 ```
 
@@ -311,7 +321,7 @@ def drop_db():
     db.drop_all()
     return '删除表成功'
 
-# 添加数据
+# 添加一条数据
 def create_stu():
     # 添加
     stu = Student()
@@ -321,11 +331,33 @@ def create_stu():
     db.session.commit()
     return '添加数据成功'
 
+# 添加多条数据
+def create_stus():
+    stu_list = []
+    for i in range(10):
+        # 第一种
+        stu = Student()
+        stu.s_name = '张三%s' % i
+        stu.s_age = '%s' % random.randrange(20)
+
+        # 第二种
+        stu = Student('张思%s' % i,'%s' % random.randrange(20))
+        stu_list.append(stu)
+        
+    db.session.add_all(stu_list)
+    db.session.commit()
+    return '添加多条数据成功'
+
+
 # 查询数据
 def select_stu():
     # stus = Student.query.filter(Student.s_name == '张三')
     stus = Student.query.all()
     # stus = Student.query.filter_by(s_name='张三')
+    # stu = Student.query.get(5)
+    # 使用原生SQL查询
+    sql = 'select * from tb_student'
+    stus = db.session.execute(sql)
     return render_template('students.html', stus=stus)
 
 # 更新数据
@@ -344,9 +376,84 @@ def del_stu():
     return render_template('students.html')
 ```
 
-注意：filter_by后的结果是一个list的结果集
+注意：
+
+- **filter**  <flask_sqlalchemy.BaseQuery object at 0x10f2f0ba8>
+
+- **filter_by**   <flask_sqlalchemy.BaseQuery object at 0x10f2f0ba8>
+- **filter / filter_by.first()** 返回单个结果
+- **get**  <==> **filter / filter_by.first()**  没有结果返回空 (Django get没有结果会报错)
+- **all** 结果是一个list的结果集
 
 **重点注意：在增删改中如果不commit的话，数据库中的数据并不会更新，只会修改本地缓存中的数据，所以一定需要db.session.commit()**
+
+**运算符**
+
+```python
+contains： 包含
+startswith：以什么开始
+endswith：以什么结束
+in_：在范围内
+like：模糊
+__gt__: 大于
+__ge__：大于等于
+__lt__：小于
+__le__：小于等于
+# 例子
+stus = Student.query.filter(Student.s_id.in_([2, 3, 4, 5, 6]))
+stus = Student.query.filter(Student.s_age.endswith('9'))
+stus = Student.query.filter(Student.s_age.contains('1'))
+```
+
+**逻辑运算**
+
+```python
+与 and_
+filter(and_(条件[,条件…])
+或 or_
+filter(or_(条件[,条件…])
+非 not_
+filter(not_(条件[,条件…])
+# 列子
+students = Student.query.filter（and_（Student.s_age == 18，Student.s_name =='雅典娜'））
+students = Student.query.filter（or_（Student.s_age == 18，Student.s_name =='雅典娜'））
+students = Student.query.filter（not_（Student.s_age == 18））
+```
+
+**筛选**
+
+```python
+limit() 截取
+offset() 跳过
+order_by() 排序
+paginate() 分页
+# 例子
+# 获取前五个
+stus = Student.query.limit(5)
+# 跳过前三个
+stus = Student.query.order_by('s_id').offset(3).limit(5)
+```
+
+**分页**
+
+```pyhton
+items     当前页面中的记录
+query     分页的源查询
+page      当前页数
+prev_num  上一页的页数
+next_num  下一页的页数
+has_prev  如果有上一页, 返回True
+has_next  如果有下一页, 返回True
+pages     查询得到的总页数
+per_page  每页显示的记录数量
+total     查询返回的记录总数
+```
+
+
+
+
+
+
 
 
 
