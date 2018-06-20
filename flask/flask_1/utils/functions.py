@@ -2,12 +2,12 @@ import os
 
 import redis
 from flask import Flask
-from flask_session import Session
 
 from app.user_views import user_blueprint
 from app.views import main_blueprint
+from utils.exts_init import ext_init
 
-from app.models import db
+
 
 
 def create_app():
@@ -22,10 +22,10 @@ def create_app():
 
     #  注册app
     app.register_blueprint(blueprint=main_blueprint, url_prefix='/main')
-    app.register_blueprint(blueprint=user_blueprint)
+    app.register_blueprint(blueprint=user_blueprint, url_prefix='/user')
 
     # SECRET_KEY 秘钥
-    app.config['SECRET_KEY'] = 'secret_key'
+    app.config['SECRET_KEY'] = "\xb1Lm\x81L\x0f\xd6H\xad"
     # session类型为redis
     app.config['SESSION_TYPE'] = 'redis'
     # 链接redis
@@ -37,19 +37,7 @@ def create_app():
     # 如果设置成 True (默认情况)，Flask-SQLAlchemy 将会追踪对象的修改并且发送信号。
     app.config['SQLALCHEMY_TRAKE_MODIFICATIONS'] = True
 
-    # 配置session
-    # 第一种方式
-    # se = Session()
-    # se.init_app(app=app)
 
-    # 第二种方式
-    Session(app=app)
 
-    # 初始化数据库
-    db.init_app(app=app)
-
+    ext_init(app)
     return app
-
-
-
-

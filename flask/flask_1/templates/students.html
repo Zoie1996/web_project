@@ -13,7 +13,11 @@
                 <td>{{ stu.s_id }}</td>
                 <td>{{ stu.s_name }}</td>
                 <td>{{ stu.grade.g_name }}</td>
-                <td><a href="/user/update_stu/?s_id={{ stu.s_id }}&g_id={{ stu.grade.g_id }}">编辑</a> |
+
+                <td>
+                    <a href="/user/add_course/?s_id={{ stu.s_id }}">添加课程</a> |
+                    <a href="/user/show_course/{{ stu.s_id }}/">显示课程</a> |
+                    <a href="/user/update_stu/?s_id={{ stu.s_id }}&g_id={{ stu.grade.g_id }}">编辑</a> |
                     <a href="/user/del_stu/?id={{ stu.s_id }}">删除</a></td>
                 </tr>
             {% endfor %}

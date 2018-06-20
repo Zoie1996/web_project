@@ -5,3 +5,5 @@ flask-sqlalchemy
 flask-migrate
 flask_session
 redis
+flask-debugtoolbar
+flask-restful

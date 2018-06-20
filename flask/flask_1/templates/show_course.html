@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}
+    显示课程页面
+{% endblock %}
+{% block content %}
+    <h3>{{ stu.s_name }}的选课信息</h3>
+    {% for course in courses %}
+        <li>{{ course.c_name }}
+            <a href="/user/stu/{{ stu.s_id }}/del_course/{{ course.c_id }}/">删除</a>
+        </li>
+    {% endfor %}
+{% endblock %}

@@ -1,50 +1,69 @@
 import random
-
-from flask import render_template, Blueprint, request, make_response, redirect, \
-    url_for, session
-
-# 导入蓝本 main_blueprint
-from app.models import db, Student, User, Grade
+from flask import render_template, Blueprint, request, redirect, \
+    url_for, session, jsonify
+from flask_restful import Resource
+from utils.decoration import is_login
+from app.models import db, Student, User, Grade, Course
+from utils.exts_init import api
 
 user_blueprint = Blueprint('user', __name__)
+
+
+class CourseApi(Resource):
+
+    def get(self):
+        courses = Course.query.all()
+        return {
+            'code': 200,
+            'msg': '请求成功',
+            'data': [course.to_dict() for course in courses]
+        }
+
+    def post(self):
+        course_list = []
+        courses = ['语文', '数学', '英语', '物理', '化学', '生物', '政治', '历史', '地理']
+        for c in courses:
+            course = Course()
+            course.c_name = c
+            course_list.append(course)
+
+        db.session.add_all(course_list)
+        db.session.commit()
+        return {
+            'code': 200,
+            'msg': '添加成功'
+        }
+
+    def put(self, id):
+        pass
+
+    def patch(self, id):
+        course = Course.query.get(id)
+        c_name = request.form.get('c_name')
+        course.c_name = c_name
+        course.save()
+        return {
+            'code': 200,
+            'msg': '更新成功',
+            'data': course.to_dict()
+        }
+
+    def delete(self, id):
+        course = Course.query.get(id)
+        db.session.delete(course)
+        db.session.commit()
+        return {
+            'code': 200,
+            'msg': '删除成功'
+        }
+
+
+api.add_resource(CourseApi, '/api/course/', '/api/course/<int:id>/')
+
 
 @user_blueprint.route('/')
 def index():
     return render_template('index.html')
-
-
-@user_blueprint.route('/setcookie/')
-def set_cookie():
-    """
-    设置cookie
-    """
-    temp = render_template('cookies.html')
-    # 服务端创建相应
-    res = make_response(temp)
-    # 绑定cookie值, set_cookie(key, value, max_age, expries)
-    res.set_cookie('ticket', '123123', max_age=10)
-    return res
-
-
-@user_blueprint.route('/delcookie/')
-def del_cookie():
-    """
-    设置cookie
-    """
-    temp = render_template('cookies.html')
-    # 服务端创建相应
-    res = make_response(temp)
-    # 删除cookie值
-    res.delete_cookie('ticket')
-    return res
-
-
-@user_blueprint.route('/scores/', methods=['GET'])
-def stu_scores():
-    scores = [1, 2, 3, 4, 5]
-    content_h2 = '<h2>哈哈哈</h2>'
-    content_h3 = ' <h3>哈哈哈</h3> '
-    return render_template('score.html', scores=scores, content_h2=content_h2, content_h3=content_h3)
 
 
 @user_blueprint.route('/create_db/')
@@ -56,13 +75,31 @@ def create_db():
 
 @user_blueprint.route('/drop_db/')
 def drop_db():
-    # 删除数据表
+    """删除数据表"""
     db.drop_all()
     return '删除成功'
 
 
+@user_blueprint.route('/create_course/')
+def create_course():
+    """添加课程"""
+    course_list = []
+    courses = ['语文', '数学', '英语', '物理', '化学', '生物', '政治', '历史', '地理']
+    for c in courses:
+        course = Course()
+        course.c_name = c
+        course_list.append(course)
+
+    db.session.add_all(course_list)
+    db.session.commit()
+    return '添加课程成功'
+
+
 @user_blueprint.route('/add_grades/')
 def add_grades():
+    """
+    添加班级
+    """
     grade_list = []
     grades = {
         'python': '人生苦短, Python当歌',
@@ -84,14 +121,57 @@ def add_grades():
     return '添加班级成功'
 
 
+@user_blueprint.route('/add_course/', methods=['GET', 'POST'])
+def add_course():
+    if request.method == 'GET':
+        courses = Course.query.all()
+        return render_template('course.html', courses=courses)
+    if request.method == 'POST':
+        s_id = request.args.get('s_id')
+        c_id = request.form.get('course_id')
+        stu = Student.query.get(s_id)
+        course = Course.query.get(c_id)
+        # 添加学生信息 course.students返回一个列表
+        course.students.append(stu)
+        db.session.add(course)
+        db.session.commit()
+        return redirect(url_for('user.grade_list'))
+
+
+@user_blueprint.route('/show_course/<int:s_id>/', methods=['GET'])
+def show_course(s_id):
+    if request.method == 'GET':
+        stu = Student.query.get(s_id)
+        # 学生反查课程
+        courses = stu.course
+        return render_template('show_course.html', courses=courses, stu=stu)
+
+
+@user_blueprint.route('/stu/<int:s_id>/del_course/<int:c_id>/', methods=['GET'])
+def del_course(s_id, c_id):
+    if request.method == 'GET':
+        course = Course.query.get(c_id)
+        stu = Student.query.get(s_id)
+        course.students.remove(stu)
+        db.session.commit()
+        return redirect(url_for('user.grade_list'))
+
+
 @user_blueprint.route('/grade_list/')
+@is_login
 def grade_list():
+    """
+    显示班级
+    """
     grades = Grade.query.all()
     return render_template('grade.html', grades=grades)
 
 
 @user_blueprint.route('/create_user_by_grade/', methods=['GET', 'POST'])
 def create_user_by_grade():
+    """
+    通过班级列表创建学生
+    """
     if request.method == 'GET':
         g_id = request.args.get('g_id')
         grade = Grade.query.get(g_id)
@@ -107,6 +187,9 @@ def create_user_by_grade():
 
 @user_blueprint.route('/select_stu_by_grade/', methods=['GET'])
 def select_stu_by_grade():
+    """
+    通过班级列表显示学生列表
+    """
     if request.method == 'GET':
         g_id = request.args.get('g_id')
         g = Grade.query.get(g_id)
@@ -204,7 +287,9 @@ def update_stu():
 
 @user_blueprint.route('/del_stu/', methods=['GET'])
 def del_stu():
-    # 删除
+    """
+    删除学生
+    """
     if request.method == 'GET':
         id = request.args.get('id')
         stu = Student.query.filter_by(s_id=id).first()
@@ -215,37 +300,51 @@ def del_stu():
 
 @user_blueprint.route('/login/', methods=['GET', 'POST'])
 def login():
+    """
+    登录
+    """
     if request.method == 'GET':
         return render_template('login.html')
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        user = User.query.filter(User.username == username).first()
-        if not user:
-            msg = '用户不存在'
+        if not all([username, password]):
+            msg = '请填写完整的登录信息'
             return render_template('login.html', msg=msg)
-        if user.password == password:
-            session['uid'] = user.u_id
-            return redirect(url_for('user.index'))
+
+        user = User.query.filter(User.username == username).first()
+        if user:
+            if user.password == password:
+                session['user_id'] = user.u_id
+                return redirect(url_for('user.grade_list'))
+            else:
+                msg = '用户名或密码错误'
+                return render_template('login.html', msg=msg)
         else:
-            msg = '用户名或密码错误'
+            msg = '用户名错误'
             return render_template('login.html', msg=msg)
 
 
 @user_blueprint.route('/register/', methods=['GET', 'POST'])
 def register():
+    """
+    注册
+    """
     if request.method == 'GET':
         return render_template('register.html')
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         password1 = request.form.get('password1')
+        flag = True
+        if not all([username, password, password1]):
+            msg, flag = '请填写完整的注册信息', False
+        if len(username) > 10:
+            msg, flag = '用户名太长, 请重新输入', False
         if password != password1:
-            msg = '两次密码不一致'
+            msg, flag = '两次密码不一致', False
+        if not flag:
             return render_template('register.html', msg=msg)
-        user = User()
-        user.username = username
-        user.password = password
-        db.session.add(user)
-        db.session.commit()
+        user = User(username, password)
+        user.save()
         return redirect(url_for('user.login'))
