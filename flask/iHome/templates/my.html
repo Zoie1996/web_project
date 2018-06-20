@@ -1,18 +1,17 @@
-<!DOCTYPE html>
-<html>
-<head> 
+{% extends 'base.html' %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>爱家-我的爱家</title>
+    {% block title %}爱家-我的爱家{% endblock %}
+{% block extCSS %}
     <link href="/static/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="/static/css/reset.css" rel="stylesheet">
     <link href="/static/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
     <link href="/static/css/ihome/main.css" rel="stylesheet">
     <link href="/static/css/ihome/my.css" rel="stylesheet">
-</head>
-<body>
+{% endblock %}
+{% block content %}
     <div class="container">
         <div class="top-bar">
             <div class="nav-bar">
@@ -25,7 +24,7 @@
                 <li>
                     <div class="menu-title">
                         <h3>个人信息</h3>
-                        <a class="fr" href="/profile.html">修改</a>
+                        <a class="fr" href="{{ url_for('user.profile') }}">修改</a>
                     </div>
                     <div class="menu-content">
                         <img id="user-avatar" src="">
@@ -42,7 +41,7 @@
                 </li>
                 <li>
                     <div class="menu-title menu-radius">
-                        <a href="/auth.html"><h3>实名认证</h3></a>
+                        <a href="{{ url_for('user.user_auth') }}"><h3>实名认证</h3></a>
                     </div>
                 </li>
                 <li>
@@ -57,7 +56,7 @@
                 </li>
                 <li>
                     <div class="menu-title menu-radius">
-                        <a href="#" onclick="logout();" >退出</a>
+                        <a href="{{ url_for('user.user_logout') }}" onclick="logout();" >退出</a>
                     </div>
                 </li>
             </ul>
@@ -66,11 +65,11 @@
             <p><span><i class="fa fa-copyright"></i></span>爱家租房&nbsp;&nbsp;享受家的温馨</p>
         </div> 
     </div>
-    
+    {% endblock %}
+{% block extJS %}
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/plugins/bootstrap/js/bootstrap.min.js"></script>
     <script src="/static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
     <script src="/static/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
     <script src="/static/js/ihome/my.js"></script>
-</body>
-</html>
+{% endblock %}
