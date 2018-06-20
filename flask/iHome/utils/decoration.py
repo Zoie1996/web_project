@@ -7,7 +7,6 @@ def is_login(func):
     """
     装饰器用于登录验证
     """
-
     @wraps(func)
     def check_login():
         if session.get('user_id'):

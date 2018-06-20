@@ -3,7 +3,7 @@ import re
 
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 
-from App.models import User, db
+from App.models import User
 from utils import status_code
 from utils.setting import UPLOAD_DIR
 from utils.decoration import is_login
@@ -96,11 +96,7 @@ def user_profile():
     user = User.query.get(session['user_id'])
     avatar_path = os.path.join('upload', file.filename)
     user.avatar = avatar_path
-    try:
-        user.add_update()
-    except Exception as e:
-        db.session.rollback()
-        return jsonify(status_code.DATABASE_ERROR)
+    user.add_update()
     return jsonify({'code': status_code.OK, 'image_url': avatar_path})
 
 
@@ -115,11 +111,7 @@ def change_name():
     # 获取当前用户
     user = User.query.get(session['user_id'])
     user.name = name
-    try:
-        user.add_update()
-    except Exception as e:
-        db.session.rollback()
-        return jsonify(status_code.DATABASE_ERROR)
+    user.add_update()
     return jsonify(status_code.SUCCESS)
 
 
@@ -147,12 +139,15 @@ def auth():
 @user_blueprint.route('/auth/', methods=['POST'])
 @is_login
 def user_auth():
+    """
+    用户实名认证
+    """
     real_name = request.form.get('real_name')
     id_card = request.form.get('id_card')
     if not all([real_name, id_card]):
         return jsonify(status_code.USER_REGISTER_DATA_NOT_NULL)
 
-    if not re.match(r'(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)', id_card):
+    if not re.match(r'^[1-9]\d{17}$', id_card):
         return jsonify(status_code.USER_AUTH_ID_CARD_IS_VALID)
 
     user = User.query.get(session['user_id'])
@@ -160,3 +155,13 @@ def user_auth():
     user.id_card = id_card
     user.add_update()
     return jsonify(status_code.SUCCESS)
+
+
+@user_blueprint.route('/auths/', methods=['GET'])
+@is_login
+def auths():
+    """
+    展示用户实名认证
+    """
+    user = User.query.get(session['user_id'])
+    return jsonify({'code': status_code.OK, 'data': user.to_auth_dict()})

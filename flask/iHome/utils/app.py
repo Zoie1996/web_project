@@ -1,9 +1,8 @@
-import os
-
 import redis
 from flask import Flask
 from flask_session import Session
 
+from App.house_views import house_blueprint
 from App.user_views import user_blueprint
 from App.models import db
 from utils.setting import static_dir, templates_dir
@@ -28,4 +27,6 @@ def create_app():
     se.init_app(app=app)
 
     app.register_blueprint(blueprint=user_blueprint, url_prefix='/user')
+    app.register_blueprint(blueprint=house_blueprint, url_prefix='/house')
+
     return app

@@ -8,8 +8,10 @@ function showSuccessMsg() {
 }
 
 $(document).ready(function () {
+
+
     $('#form-auth').submit(function (e) {
-        e.preventDefault();
+        // e.preventDefault();
         real_name = $('#real-name').val();
         id_card = $('#id-card').val();
         $.ajax({
@@ -35,8 +37,17 @@ $(document).ready(function () {
                 alert('保存失败');
             }
         });
+        return false
     });
 
-
+    $.get('/user/auths/', function (msg) {
+        if (msg.code == 200) {
+            if (msg.data.id_card) {
+                $('#real-name').val(msg.data.id_name).attr('readonly','readonly');
+                $('#id-card').val(msg.data.id_card).attr('readonly', 'readonly');
+                $('.btn-success').hide();
+            }
+        }
+    });
 });
 
