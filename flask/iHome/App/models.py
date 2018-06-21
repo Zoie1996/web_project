@@ -37,8 +37,8 @@ class User(BaseModel, db.Model):
     id_name = db.Column(db.String(30))  # 实名认证的姓名
     id_card = db.Column(db.String(18), unique=True)  # 实名认证的身份证号码
 
-    # houses = db.relationship('House', backref='user')
-    # orders = db.relationship('Order', backref='user')
+    houses = db.relationship('House', backref='user')
+    orders = db.relationship('Order', backref='user')
 
     # 读
     @property
@@ -115,7 +115,7 @@ class House(BaseModel, db.Model):
             # 'avatar':current_app.config['QINIU_URL']+self.user.avatar if self.user.avatar else '',
             'room': self.room_count,
             'order_count': self.order_count,
-            'address': self.address
+            'address': self.address,
         }
 
     def to_full_dict(self):

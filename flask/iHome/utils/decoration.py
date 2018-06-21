@@ -8,9 +8,9 @@ def is_login(func):
     装饰器用于登录验证
     """
     @wraps(func)
-    def check_login():
+    def check_login(*args, **kwargs):
         if session.get('user_id'):
-            return func()
+            return func(*args, **kwargs)
         else:
             # 验证失败
             return redirect(url_for('user.login'))

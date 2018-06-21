@@ -5,3 +5,4 @@ static_dir = os.path.join(BASE_DIR, 'static')
 templates_dir = os.path.join(BASE_DIR, 'templates')
 
 UPLOAD_DIR = os.path.join(static_dir, 'upload')
+IMAGES_DIR = os.path.join(static_dir, 'images')

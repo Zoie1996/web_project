@@ -29,18 +29,37 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).ajaxSubmit({
             url: '/house/new_house/',
-            type: 'Post',
+            type: 'POST',
             dataType: 'json',
             success: function (msg) {
                 if (msg.code == 200) {
-                    $('.popup_con').fadeIn('slow');
+                    console.log(msg.house_id);
+                    $('.popup_con').fadeIn('fast');
                     $('.popup_con').fadeOut('fast');
-                    location.href = '/house/my_house/';
+                    $('#form-house-info').hide();
+                    $('#form-house-image').show();
+                    $('#house-id').val(msg.house_id)
                 }
             },
-
         });
 
+    });
+
+
+    $('#form-house-image').submit(function (e) {
+        e.preventDefault();
+        house_id = $('#house-id').val();
+        $(this).ajaxSubmit({
+            url: '/house/new_house_image/'+house_id+'/',
+            type: 'POST',
+            dataType: 'json',
+            success: function (msg) {
+                if (msg.code == 200) {
+                    var img_html = '<img src="/static/'+msg.image_url+'">';
+                    $('.house-image-cons').append(img_html);
+                }
+            },
+        });
 
     });
 });
