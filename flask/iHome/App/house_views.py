@@ -3,7 +3,7 @@ import re
 
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 
-from App.models import Area, Facility, House, HouseImage
+from App.models import Area, Facility, House, HouseImage, User
 from utils import status_code
 from utils.decoration import is_login
 from utils.setting import UPLOAD_DIR
@@ -11,10 +11,19 @@ from utils.setting import UPLOAD_DIR
 house_blueprint = Blueprint('house', __name__)
 
 
-@house_blueprint.route('/', methods=['GET'])
+@house_blueprint.route('/index/', methods=['GET'])
 def index():
     """显示首页信息"""
     return render_template('index.html')
+
+
+@house_blueprint.route('/hindex/', methods=['GET'])
+def hindex():
+    """判断首页用户是否登录"""
+    if session['user_id']:
+        user = User.query.get(session['user_id'])
+        username = user.name
+        return jsonify(code=status_code.OK, username=username)
 
 
 @house_blueprint.route('/my_house/', methods=['GET'])
@@ -24,9 +33,16 @@ def my_house():
     return render_template('myhouse.html')
 
 
+@house_blueprint.route('/show_all_house/', methods=['GET'])
+def show_all_house():
+    houses = House.query.all()
+    house_list = [house.to_full_dict() for house in houses]
+    return jsonify(code=status_code.OK, houses=house_list)
+
+
 @house_blueprint.route('/show_my_house/', methods=['GET'])
 def show_my_house():
-    """显示房屋信息"""
+    """显示用户房屋信息"""
     houses = House.query.filter(House.user_id == session['user_id']).all()
     house_list = [house.to_dict() for house in houses]
     return jsonify(code=status_code.OK, houses=house_list)
@@ -104,11 +120,14 @@ def new_house_image(house_id):
 
 
 @house_blueprint.route('/detail/', methods=['GET'])
+@is_login
 def detail():
+    """返回房屋详情页面"""
     return render_template('detail.html')
 
 
 @house_blueprint.route('/detail/<int:house_id>/', methods=['GET'])
+@is_login
 def house_detail(house_id):
     house = House.query.get(house_id)
     house_info = house.to_full_dict()
@@ -116,5 +135,7 @@ def house_detail(house_id):
 
 
 @house_blueprint.route('/booking/', methods=['GET'])
+@is_login
 def booking():
+    """返回预定页面"""
     return render_template('booking.html')

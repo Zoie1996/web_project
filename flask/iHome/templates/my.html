@@ -17,7 +17,7 @@
         <div class="top-bar">
             <div class="nav-bar">
                 <h3 class="page-title">我的爱家</h3>
-                <a class="nav-btn fl" href="{{ url_for('user.my') }}"><span><i
+                <a class="nav-btn fl" href="{{ url_for('house.index') }}"><span><i
                         class="fa fa-angle-left fa-2x"></i></span></a>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 </li>
                 <li>
                     <div class="menu-title menu-radius">
-                        <a href="/orders.html"><h3>我的订单</h3></a>
+                        <a href="{{ url_for('order.orders') }}"><h3>我的订单</h3></a>
                     </div>
                 </li>
                 <li>
@@ -53,7 +53,7 @@
                 </li>
                 <li>
                     <div class="menu-title menu-radius">
-                        <a href="/lorders.html"><h3>客户订单</h3></a>
+                        <a href="{{ url_for('order.lorders') }}"><h3>客户订单</h3></a>
                     </div>
                 </li>
                 <li>

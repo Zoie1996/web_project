@@ -135,6 +135,7 @@ class House(BaseModel, db.Model):
             'min_days': self.min_days,
             'max_days': self.max_days,
             'order_count': self.order_count,
+            'image': self.index_image_url if self.index_image_url else '',
             'images': [image.url for image in self.images],
             'facilities': [facility.to_dict() for facility in self.facilities],
         }

@@ -39,7 +39,7 @@ $(document).ready(function () {
 
             facility_li = '';
             for (var j = 0; j < data.facilities.length; j++) {
-                facility_li += '<li><span class=' + data.facilities[j].css + '></span>' + data.facilities[j].name + '</li>"';
+                facility_li += '<li><span class=' + data.facilities[j].css + '></span>' + data.facilities[j].name + '</li>';
             }
 
             $('.house-facility-list').html(facility_li);

@@ -69,7 +69,7 @@ $('.submit-btn').on('click', function () {
         {'start_date': start_date, 'end_date': end_date, 'house_id': house_id},
         function (msg) {
             if (msg.code == 200) {
-                alert('提交成功')
+                location.href = '/order/orders/';
             }
 
         });
