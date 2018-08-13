@@ -1,9 +1,0 @@
-flask
-flask-script
-flask_blueprint
-flask-sqlalchemy
-flask-migrate
-flask_session
-redis
-flask-debugtoolbar
-flask-restful
