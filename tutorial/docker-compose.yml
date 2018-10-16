@@ -1,0 +1,37 @@
+# db:
+#  image: mysql:5.7.23
+#  expose:
+#    - "3306"
+#  ports:
+#    - "3306:3306"
+#  volumes:
+#    - ./db:/var/lib/mysql
+#  environment:
+#    - MYSQL_DATABASE=tutorial
+#    - MYSQL_ROOT_PASSWORD=123456
+
+
+db:
+    image: mysql:5.7.23
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --init-connect='SET NAMES UTF8mb4;' --innodb-flush-log-at-trx-commit=0
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=openai
+      - MYSQL_ROOT_PASSWORD=123456
+
+
+
+web:
+  build: .
+  command: python3 ./manage.py runserver 0.0.0.0:8000
+  volumes:
+    - .:/code
+  ports:
+    - "8000:8000"
+  links:
+    - db

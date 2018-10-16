@@ -1,0 +1,2 @@
+# 热销商品的数量
+HOT_SKUS_COUNT_LIMIT = 3

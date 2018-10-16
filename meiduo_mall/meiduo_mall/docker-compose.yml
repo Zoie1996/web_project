@@ -1,0 +1,29 @@
+redis:
+  image: redis:3.2
+  ports:
+    - "6379"
+  networks:
+    - frontend
+
+
+db:
+  image: mysql:5.7.23
+  expose:
+    - "3306"
+  ports:
+    - "3306:3306"
+  volumes:
+    - ./db:/var/lib/mysql
+  environment:
+    - MYSQL_DATABASE=meiduo_mall
+    - MYSQL_ROOT_PASSWORD=123456
+
+meiduo_web:
+  build: .
+  command: python3 ./meiduo/manage.py runserver 0.0.0.0:8000
+  volumes:
+    - .:/code
+  ports:
+    - "8000:8000"
+  links:
+    - db
